@@ -17,6 +17,8 @@ These stand-alone resources can be useful to researchers with or without the acc
 + Generic wrapper for multi-core repeated K fold cross-validation: [model.py](src/pypm/ml_model/model.py)
 + Free-to-use simulated EOD stock data and alternative data streams: [data](data)
 
+----
+
 ![](cover.png)
 
 
