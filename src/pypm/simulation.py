@@ -134,18 +134,18 @@ class SimpleSimulator(object):
         column_names = set(args[0].columns.values)
         for arg in args[1:]:
             assert set(arg.columns.values) == column_names, \
-                'Found unequal column names in input data frames.'
+                'Found unequal column names in input dataframes.'
 
     def simulate(self, price: pd.DataFrame, signal: pd.DataFrame, 
         preference: pd.DataFrame):
         """
         Runs the simulation.
 
-        price, signal, and preference are data frames with the column names 
+        price, signal, and preference are dataframes with the column names 
         represented by the same set of stock symbols.
         """
 
-        # Create a hierarchical data frame to loop through
+        # Create a hierarchical dataframe to loop through
         self._assert_equal_columns(price, signal, preference)
         df = data_io.concatenate_metrics({
             'price': price,
@@ -166,7 +166,7 @@ class SimpleSimulator(object):
 
         # Iterating over all dates.
         # itertuples() is significantly faster than iterrows(), it however comes
-        # at the cost of being able index easily. In order to get around this
+        # at the cost of not being able index easily. In order to get around this
         # we use an tuple lookup function: "_idx"
         for row in df.itertuples():
 

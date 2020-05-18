@@ -9,7 +9,7 @@ from typing import List
 def calculate_signals(classifier, symbols: List[str], eod_data: pd.DataFrame,
 	alt_data: pd.DataFrame) -> pd.DataFrame:
 	"""
-	Calculate signal data frames for use in the simulator
+	Calculate signal dataframes for use in the simulator
 	"""
 
 	# For storing the signals

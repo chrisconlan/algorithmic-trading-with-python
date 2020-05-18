@@ -39,11 +39,11 @@ if __name__ == '__main__':
         # Subset features by event dates
         features_on_events = features_df.loc[event_index]
 
-        # Convert labels and events to a data frame
+        # Convert labels and events to a dataframe
         labels_df = pd.DataFrame(event_labels)
         labels_df.columns = ['y']
 
-        # Converts weights to a data frame
+        # Converts weights to a dataframe
         weights_df = pd.DataFrame(weights)
         weights_df.columns = ['weights']
 
