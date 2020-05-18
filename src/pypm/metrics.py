@@ -69,7 +69,7 @@ def calculate_annualized_volatility(return_series: pd.Series) -> float:
 def calculate_sharpe_ratio(price_series: pd.Series, 
     benchmark_rate: float=0) -> float:
     """
-    Calculates the sharpe ratio given a price series. Defaults to benchmark_rate
+    Calculates the Sharpe ratio given a price series. Defaults to benchmark_rate
     of zero.
     """
     cagr = calculate_cagr(price_series)
@@ -81,7 +81,7 @@ def calculate_sharpe_ratio(price_series: pd.Series,
 def calculate_rolling_sharpe_ratio(price_series: pd.Series,
     n: float=20) -> pd.Series:
     """
-    Compute an approximation of the sharpe ratio on a rolling basis. 
+    Compute an approximation of the Sharpe ratio on a rolling basis. 
     Intended for use as a preference value.
     """
     rolling_return_series = calculate_return_series(price_series).rolling(n)
@@ -91,7 +91,7 @@ def calculate_rolling_sharpe_ratio(price_series: pd.Series,
 def calculate_annualized_downside_deviation(return_series: pd.Series,
     benchmark_rate: float=0) -> float:
     """
-    Calculates the downside deviation for use in the sortino ratio.
+    Calculates the downside deviation for use in the Sortino ratio.
 
     Benchmark rate is assumed to be annualized. It will be adjusted according
     to the number of periods per year seen in the data.
@@ -114,7 +114,7 @@ def calculate_annualized_downside_deviation(return_series: pd.Series,
 def calculate_sortino_ratio(price_series: pd.Series,
     benchmark_rate: float=0) -> float:
     """
-    Calculates the sortino ratio.
+    Calculates the Sortino ratio.
     """
     cagr = calculate_cagr(price_series)
     return_series = calculate_return_series(price_series)
@@ -142,7 +142,7 @@ def calculate_pure_profit_score(price_series: pd.Series) -> float:
 def calculate_jensens_alpha(return_series: pd.Series, 
     benchmark_return_series: pd.Series) -> float: 
     """
-    Calculates jensens alpha. Prefers input series have the same index. Handles
+    Calculates Jensen's alpha. Prefers input series have the same index. Handles
     NAs.
     """
 
@@ -160,7 +160,7 @@ def calculate_jensens_alpha(return_series: pd.Series,
 
 def calculate_jensens_alpha_v2(return_series: pd.Series) -> float: 
     """
-    Calculates jensens alpha, but loads in SPY prices as the benchmark series 
+    Calculates Jensen's alpha, but loads in SPY prices as the benchmark series 
     for you. Can be slow if run repeatedly.
     """
     spy_data = load_spy_data()

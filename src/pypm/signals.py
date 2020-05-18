@@ -8,7 +8,7 @@ from pypm.data_io import load_eod_data
 def create_macd_signal(series: pd.Series, n1: int=5, n2: int=34) -> pd.Series:
     """
     Create a momentum-based signal based on the MACD crossover principle. 
-    Generate a buy signal when the MACD cross above zero, and a sell signal when
+    Generate a buy signal when the MACD crosses above zero, and a sell signal when
     it crosses below zero.
     """
 
@@ -19,7 +19,7 @@ def create_macd_signal(series: pd.Series, n1: int=5, n2: int=34) -> pd.Series:
     # Create a copy shifted by some amount.
     macd_shifted_sign = macd_sign.shift(1, axis=0)
 
-    # Multiply by the sign by the boolean. This will have the effect of casting
+    # Multiply the sign by the boolean. This will have the effect of casting
     # the boolean to an integer (either 0 or 1) and then multiply by the sign
     # (either -1, 0 or 1).
     return macd_sign * (macd_sign != macd_shifted_sign)

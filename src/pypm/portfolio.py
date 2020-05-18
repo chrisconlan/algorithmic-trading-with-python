@@ -28,7 +28,7 @@ class Position(object):
     def __init__(self, symbol: Symbol, entry_date: pd.Timestamp, 
         entry_price: Dollars, shares: int):
         """
-        Equivelent to buying a certain number of shares of the asset
+        Equivalent to buying a certain number of shares of the asset
         """
 
         # Recorded on initialization
@@ -60,7 +60,7 @@ class Position(object):
 
     def exit(self, exit_date, exit_price):
         """
-        Equivelent to selling a stock holding
+        Equivalent to selling a stock holding
         """
         assert self.entry_date != exit_date, 'Churned a position same-day.'
         assert not self.exit_date, 'Position already closed.'

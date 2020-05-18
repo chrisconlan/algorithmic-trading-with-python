@@ -15,7 +15,7 @@ def calculate_uniqueness(event_spans: pd.Series,
     training.
     """
 
-    # Create a binary data frame 
+    # Create a binary dataframe 
     # value is 1 during event span and 0 otherwise
     columns = range(event_spans.shape[0])
     df = pd.DataFrame(0, index=price_index, columns=columns)

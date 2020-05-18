@@ -10,7 +10,7 @@ def simulate_portfolio():
     symbols: List[str] = data_io.get_all_symbols()
     prices: pd.DataFrame = data_io.load_eod_matrix(symbols)
 
-    # Use the bollinger band outer band crossorver as a signal
+    # Use the Bollinger Band outer band crossover as a signal
     _bollinger = signals.create_bollinger_band_signal
     signal = prices.apply(_bollinger, args=(bollinger_n,), axis=0)
 

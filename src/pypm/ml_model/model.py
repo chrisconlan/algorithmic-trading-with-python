@@ -15,7 +15,7 @@ N_REPEATS = 4
 
 def _fit_and_score(classifier, X, y, w, train_index, test_index, i) -> float:
     """
-    The function used by joblib to split, train, and score cross validations
+    The function used by joblib to split, train, and score cross-validations
     """
     X_train = X.iloc[train_index]
     X_test = X.iloc[test_index]
@@ -35,7 +35,7 @@ def _fit_and_score(classifier, X, y, w, train_index, test_index, i) -> float:
 
 def repeated_k_fold(classifier, X, y, w) -> np.ndarray:
     """
-    Perform repeated k-fold cross validation on a classifier. Spread fitting 
+    Perform repeated k-fold cross-validation on a classifier. Spread fitting 
     job over multiple computer cores.
     """
     n_jobs = N_JOBS
@@ -76,7 +76,7 @@ def calculate_model(df: pd.DataFrame) -> RandomForestClassifier:
     y = df['y']
     w = df['weights']
 
-    # Fit cross validation
+    # Fit cross-validation
     scores = repeated_k_fold(classifier, X, y, w)
 
     # Get a full dataset fit for importance scores
