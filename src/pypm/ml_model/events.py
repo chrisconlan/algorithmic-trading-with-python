@@ -2,10 +2,13 @@ import numpy as np
 import pandas as pd
 from pypm import filters
 
-def calculate_events_for_revenue_series(series: pd.Series, 
-    filter_threshold: float, lookback: int=365) -> pd.DatetimeIndex:
+
+def calculate_events_for_revenue_series(
+        series: pd.Series,
+        filter_threshold: float,
+        lookback: int = 365) -> pd.DatetimeIndex:
     """
-    Calculate the symmetric cusum filter to generate events on YoY changes in 
+    Calculate the symmetric cusum filter to generate events on YoY changes in
     the log revenue series
     """
     series = np.log(series)
@@ -19,7 +22,3 @@ def calculate_events(revenue_series: pd.Series):
         filter_threshold=5,
         lookback=365,
     )
-    
-
-
-

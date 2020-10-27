@@ -8,17 +8,19 @@ from timeit import default_timer
 from typing import Dict, Tuple, List, Callable, Iterable, Any, NewType, Mapping
 
 import matplotlib.pyplot as plt
-from matplotlib import cm 
-from mpl_toolkits.mplot3d import Axes3D 
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 
 # Performance data and parameter inputs are dictionaries
-Parameters = NewType('Parameters', Dict[str, float])
-Performance = simulation.PortfolioHistory.PerformancePayload # Dict[str, float]
+Parameters = NewType("Parameters", Dict[str, float])
+# Dict[str, float]
+Performance = simulation.PortfolioHistory.PerformancePayload
 
-# Simulation function must take parameters as keyword arguments pointing to 
+# Simulation function must take parameters as keyword arguments pointing to
 # iterables and return a performance metric dictionary
-SimKwargs = NewType('Kwargs', Mapping[str, Iterable[Any]])
-SimFunction = NewType('SimFunction', Callable[[SimKwargs], Performance])
+SimKwargs = NewType("Kwargs", Mapping[str, Iterable[Any]])
+SimFunction = NewType("SimFunction", Callable[[SimKwargs], Performance])
+
 
 class OptimizationResult(object):
     """Simple container class for optimization data"""
@@ -26,8 +28,8 @@ class OptimizationResult(object):
     def __init__(self, parameters: Parameters, performance: Performance):
 
         # Make sure no collisions between performance metrics and params
-        assert len(parameters.keys() & performance.keys()) == 0, \
-            'parameter name matches performance metric name'
+        assert (len(parameters.keys() & performance.keys()) == 0
+               ), "parameter name matches performance metric name"
 
         self.parameters = parameters
         self.performance = performance
@@ -36,12 +38,12 @@ class OptimizationResult(object):
     def as_dict(self) -> Dict[str, float]:
         """Combines the dictionaries after we are sure of no collisions"""
         return {**self.parameters, **self.performance}
-    
+
 
 class GridSearchOptimizer(object):
     """
     A generic grid search optimizer that requires only a simulation function and
-    a series of parameter ranges. Provides timing, summary, and plotting 
+    a series of parameter ranges. Provides timing, summary, and plotting
     utilities with return data.
     """
 
@@ -59,7 +61,7 @@ class GridSearchOptimizer(object):
 
     def optimize(self, **optimization_ranges: SimKwargs):
 
-        assert optimization_ranges, 'Must provide non-empty parameters.'
+        assert optimization_ranges, "Must provide non-empty parameters."
 
         # Convert all iterables to lists
         param_ranges = {k: list(v) for k, v in optimization_ranges.items()}
@@ -70,16 +72,16 @@ class GridSearchOptimizer(object):
 
         total_time_elapsed = 0
 
-        print(f'Starting simulation ...')
-        print(f'Simulating 1 / {n} ...', end='\r')
+        print(f"Starting simulation ...")
+        print(f"Simulating 1 / {n} ...", end="\r")
         for i, params in enumerate(product(*param_ranges.values())):
             if i > 0:
                 _avg = avg_time = total_time_elapsed / i
                 _rem = remaining_time = (n - (i + 1)) * avg_time
-                s =  f'Simulating {i+1} / {n} ... '
-                s += f'{_rem:.0f}s remaining ({_avg:.1f}s avg)'
-                s += ' '*8
-                print(s, end='\r')
+                s = f"Simulating {i+1} / {n} ... "
+                s += f"{_rem:.0f}s remaining ({_avg:.1f}s avg)"
+                s += " " * 8
+                print(s, end="\r")
 
             timer_start = default_timer()
 
@@ -88,17 +90,17 @@ class GridSearchOptimizer(object):
             self.add_results(parameters, results)
 
             timer_end = default_timer()
-            total_time_elapsed += timer_end - timer_start 
+            total_time_elapsed += timer_end - timer_start
 
-        print(f'Simulated {total_simulations} / {total_simulations} ...')
-        print(f'Elapsed time: {total_time_elapsed:.0f}s')
-        print(f'Done.')
+        print(f"Simulated {total_simulations} / {total_simulations} ...")
+        print(f"Elapsed time: {total_time_elapsed:.0f}s")
+        print(f"Done.")
 
         self._optimization_finished = True
 
     def _assert_finished(self):
-        assert self._optimization_finished, \
-            'Run self.optimize before accessing this method.'
+        assert (self._optimization_finished
+               ), "Run self.optimize before accessing this method."
 
     @property
     def results(self) -> pd.DataFrame:
@@ -118,7 +120,7 @@ class GridSearchOptimizer(object):
         df = self.results
         metric_names = self.metric_names
 
-        print('Summary statistics')
+        print("Summary statistics")
         print(df[metric_names].describe().T)
 
     def get_best(self, metric_name: str) -> pd.DataFrame:
@@ -131,8 +133,8 @@ class GridSearchOptimizer(object):
         param_names = self.param_names
         metric_names = self.metric_names
 
-        assert metric_name in metric_names, 'Not a performance metric'
-        partial_df = self.results[param_names+[metric_name]]
+        assert metric_name in metric_names, "Not a performance metric"
+        partial_df = self.results[param_names + [metric_name]]
 
         return partial_df.sort_values(metric_name, ascending=False)
 
@@ -148,8 +150,8 @@ class GridSearchOptimizer(object):
 
         ax = _results.plot(x, y)
         if filter_kwargs:
-            k_str = ', '.join([f'{k}={v}' for k,v in filter_kwargs.items()])
-            ax.legend([f'{x} ({k_str})'])
+            k_str = ", ".join([f"{k}={v}" for k, v in filter_kwargs.items()])
+            ax.legend([f"{x} ({k_str})"])
 
         if show:
             plt.show()
@@ -170,8 +172,8 @@ class GridSearchOptimizer(object):
         ax.violinplot(dataset=list(y_by_x.values()), showmedians=True)
         ax.set_xlabel(x)
         ax.set_ylabel(y)
-        ax.set_xticks(range(0, len(y_by_x)+1))
-        ax.set_xticklabels([''] + list(y_by_x.keys()))
+        ax.set_xticks(range(0, len(y_by_x) + 1))
+        ax.set_xticklabels([""] + list(y_by_x.keys()))
         if show:
             plt.show()
 
@@ -194,11 +196,13 @@ class GridSearchOptimizer(object):
         if show:
             plt.show()
 
-    def plot(self, *attrs: Tuple[str], show=True, 
-        **filter_kwargs: Dict[str, Any]):
+    def plot(self,
+             *attrs: Tuple[str],
+             show=True,
+             **filter_kwargs: Dict[str, Any]):
         """
         Attempt to intelligently dispatch plotting functions based on the number
-        and type of attributes. Last argument should typically be the 
+        and type of attributes. Last argument should typically be the
         performance metric.
         """
         self._assert_finished()
@@ -206,14 +210,15 @@ class GridSearchOptimizer(object):
         metric_names = self.metric_names
 
         if len(attrs) == 3:
-            assert attrs[0] in param_names and attrs[1] in param_names, \
-                'First two positional arguments must be parameter names.'
+            assert (attrs[0] in param_names and attrs[1] in param_names
+                   ), "First two positional arguments must be parameter names."
 
-            assert attrs[2] in metric_names, \
-                'Last positional argument must be a metric name.'
+            assert (attrs[2] in metric_names
+                   ), "Last positional argument must be a metric name."
 
-            assert len(filter_kwargs) + 2 == len(param_names), \
-                'Must filter remaining parameters. e.g. p_three=some_number.'
+            assert len(filter_kwargs) + 2 == len(
+                param_names
+            ), "Must filter remaining parameters. e.g. p_three=some_number."
 
             self.plot_3d_mesh(*attrs, show=show, **filter_kwargs)
 
@@ -228,8 +233,4 @@ class GridSearchOptimizer(object):
             self.plot_1d_hist(*attrs, show=show)
 
         else:
-            raise ValueError('Must pass between one and three column names.')
-
-
-
-
+            raise ValueError("Must pass between one and three column names.")

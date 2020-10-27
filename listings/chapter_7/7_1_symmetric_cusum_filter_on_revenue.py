@@ -2,10 +2,11 @@
 import numpy as np
 import pandas as pd
 
+
 def calculate_non_uniform_lagged_change(series: pd.Series, n_days: int):
     """
-    Use pd.Series.searchsorted to measure the lagged change in a non-uniformly 
-    spaced time series over n_days of calendar time. 
+    Use pd.Series.searchsorted to measure the lagged change in a non-uniformly
+    spaced time series over n_days of calendar time.
     """
 
     # Get mapping from now to n_days ago at every point
@@ -24,13 +25,14 @@ def calculate_non_uniform_lagged_change(series: pd.Series, n_days: int):
     _lagged_series = series.iloc[_idx]
 
     # Measure the difference
-    _diff = pd.Series(_series.values-_lagged_series.values, index=_series.index)
+    _diff = pd.Series(_series.values - _lagged_series.values,
+                      index=_series.index)
 
     return pd.concat([_na_pad, _diff])
 
 
-def calculate_cusum_events(series: pd.Series, 
-    filter_threshold: float) -> pd.DatetimeIndex:
+def calculate_cusum_events(series: pd.Series,
+                           filter_threshold: float) -> pd.DatetimeIndex:
     """
     Calculate symmetric cusum filter and corresponding events
     """
@@ -39,7 +41,7 @@ def calculate_cusum_events(series: pd.Series,
     s_up = 0
     s_down = 0
 
-    for date, price in series.items():
+    for date, price in list(series.items()):
         s_up = max(0, s_up + price)
         s_down = min(0, s_down + price)
 
@@ -53,13 +55,17 @@ def calculate_cusum_events(series: pd.Series,
 
     return pd.DatetimeIndex(event_dates)
 
+
 # In pypm.ml_model.events
 from pypm import filters
 
-def calculate_events_for_revenue_series(series: pd.Series, 
-    filter_threshold: float, lookback: int=365) -> pd.DatetimeIndex:
+
+def calculate_events_for_revenue_series(
+        series: pd.Series,
+        filter_threshold: float,
+        lookback: int = 365) -> pd.DatetimeIndex:
     """
-    Calculate the symmetric cusum filter to generate events on YoY changes in 
+    Calculate the symmetric cusum filter to generate events on YoY changes in
     the log revenue series
     """
     series = np.log(series)

@@ -14,6 +14,7 @@ N_JOBS = 10
 N_SPLITS = 5
 N_REPEATS = 4
 
+
 def _fit_and_score(classifier, X, y, w, train_index, test_index, i) -> float:
     """
     The function used by joblib to split, train, and score cross validations
@@ -30,13 +31,14 @@ def _fit_and_score(classifier, X, y, w, train_index, test_index, i) -> float:
     classifier.fit(X_train, y_train, w_train)
     score = classifier.score(X_test, y_test, w_test)
 
-    print(f'Finished {i} ({100*score:.1f}%)')
+    print(f"Finished {i} ({100*score:.1f}%)")
 
     return score
 
+
 def repeated_k_fold(classifier, X, y, w) -> np.ndarray:
     """
-    Perform repeated k-fold cross validation on a classifier. Spread fitting 
+    Perform repeated k-fold cross validation on a classifier. Spread fitting
     job over multiple computer cores.
     """
     n_jobs = N_JOBS
@@ -44,38 +46,37 @@ def repeated_k_fold(classifier, X, y, w) -> np.ndarray:
     n_splits = N_SPLITS
     n_repeats = N_REPEATS
 
-    total_fits =  n_splits * n_repeats
+    total_fits = n_splits * n_repeats
 
     _k_fold = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats)
 
-    print(f'Fitting {total_fits} models {n_jobs} at a time ...')
+    print(f"Fitting {total_fits} models {n_jobs} at a time ...")
     print()
 
     parallel = Parallel(n_jobs=n_jobs)
     scores = parallel(
-        delayed(_fit_and_score)(
-            clone(classifier), X, y, w, train_index, test_index, i
-        ) for i, (train_index, test_index) in enumerate(_k_fold.split(X))
-    )
+        delayed(_fit_and_score)(clone(classifier), X, y, w, train_index,
+                                test_index, i)
+        for i, (train_index, test_index) in enumerate(_k_fold.split(X)))
 
     return np.array(scores)
 
 
 def calculate_model(df: pd.DataFrame) -> RandomForestClassifier:
     """
-    Given a dataframe with a y column, weights column, and predictor columns 
-    with arbitrary names, cross-validated and fit a classifier. Print 
+    Given a dataframe with a y column, weights column, and predictor columns
+    with arbitrary names, cross-validated and fit a classifier. Print
     diagnostics.
     """
     classifier = RandomForestClassifier(n_estimators=100)
 
     # Separate data
     predictor_columns = [
-        c for c in df.columns.values if not c in ('y', 'weights')
+        c for c in df.columns.values if c not in ("y", "weights")
     ]
     X = df[predictor_columns]
-    y = df['y']
-    w = df['weights']
+    y = df["y"]
+    w = df["weights"]
 
     # Fit cross validation
     scores = repeated_k_fold(classifier, X, y, w)
@@ -99,19 +100,18 @@ def calculate_model(df: pd.DataFrame) -> RandomForestClassifier:
     lower_bound = mean_score - 2 * std_score
     ibounds = (lower_bound - baseline, upper_bound - baseline)
 
-    print('Feature importances')
-    for col, imp in importance_series.items():
-        print(f'{col:24} {imp:>.3f}')
+    print("Feature importances")
+    for col, imp in list(importance_series.items()):
+        print(f"{col:24} {imp:>.3f}")
     print()
 
-    print('Cross validation scores')
-    print(np.round(100 * scores, 1))
+    print("Cross validation scores")
+    print((np.round(100 * scores, 1)))
     print()
 
-    print(f'Baseline accuracy {100*baseline:.1f}%')
-    print(f'OOS accuracy {100*mean_score:.1f}% +/- {200 * scores.std():.1f}%')
-    print(f'Improvement {100*(ibounds[0]):.1f} to {100*(ibounds[1]):.1f}%')
+    print(f"Baseline accuracy {100*baseline:.1f}%")
+    print(f"OOS accuracy {100*mean_score:.1f}% +/- {200 * scores.std():.1f}%")
+    print(f"Improvement {100*(ibounds[0]):.1f} to {100*(ibounds[1]):.1f}%")
     print()
 
     return classifier
-

@@ -4,12 +4,13 @@ import numpy as np
 import os
 from joblib import load
 
-from pypm.ml_model.data_io import load_data
-from pypm.ml_model.signals import calculate_signals
+from .pypm.ml_model.data_io import load_data
+from .pypm.ml_model.signals import calculate_signals
 
-from pypm import metrics, simulation
+from .pypm import metrics, simulation
 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def simulate_portfolio():
 
@@ -17,10 +18,10 @@ def simulate_portfolio():
     symbols, eod_data, alt_data = load_data()
 
     # Load classifier from file
-    classifier = load(os.path.join(SRC_DIR, 'ml_model.joblib'))
+    classifier = load(os.path.join(SRC_DIR, "ml_model.joblib"))
 
     # Generate signals from classifier
-    print('Calculating signals ...')
+    print("Calculating signals ...")
     signal = calculate_signals(classifier, symbols, eod_data, alt_data)
 
     # Get rid of eod_data before valid signals
@@ -28,10 +29,10 @@ def simulate_portfolio():
     eod_data = eod_data[eod_data.index > first_signal_date]
 
     # Set the preference to increase by row, so new trades are preferred
-    print('Calculating preference matrix ...')
+    print("Calculating preference matrix ...")
     preference = pd.DataFrame(
-        np.random.random(eod_data.shape), 
-        columns=eod_data.columns, 
+        np.random.random(eod_data.shape),
+        columns=eod_data.columns,
         index=eod_data.index,
     )
 
@@ -51,6 +52,6 @@ def simulate_portfolio():
     simulator.portfolio_history.plot()
     simulator.portfolio_history.plot_benchmark_comparison()
 
-if __name__ == '__main__':
-    simulate_portfolio()
 
+if __name__ == "__main__":
+    simulate_portfolio()

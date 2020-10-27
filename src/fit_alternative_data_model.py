@@ -5,16 +5,16 @@ from typing import Dict
 
 from joblib import dump
 
-from pypm.ml_model.data_io import load_data
-from pypm.ml_model.events import calculate_events
-from pypm.ml_model.labels import calculate_labels
-from pypm.ml_model.features import calculate_features
-from pypm.ml_model.model import calculate_model
-from pypm.ml_model.weights import calculate_weights
+from .pypm.ml_model.data_io import load_data
+from .pypm.ml_model.events import calculate_events
+from .pypm.ml_model.labels import calculate_labels
+from .pypm.ml_model.features import calculate_features
+from .pypm.ml_model.model import calculate_model
+from .pypm.ml_model.weights import calculate_weights
 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # All the data we have to work with
     symbols, eod_data, alt_data = load_data()
@@ -41,18 +41,18 @@ if __name__ == '__main__':
 
         # Convert labels and events to a dataframe
         labels_df = pd.DataFrame(event_labels)
-        labels_df.columns = ['y']
+        labels_df.columns = ["y"]
 
         # Converts weights to a dataframe
         weights_df = pd.DataFrame(weights)
-        weights_df.columns = ['weights']
+        weights_df.columns = ["weights"]
 
         # Concatenate features to labels
         df = pd.concat([features_on_events, weights_df, labels_df], axis=1)
         df_by_symbol[symbol] = df
 
     # Create final ML dataframe
-    df = pd.concat(df_by_symbol.values(), axis=0)
+    df = pd.concat(list(df_by_symbol.values()), axis=0)
     df.sort_index(inplace=True)
     df.dropna(inplace=True)
     print(df)
@@ -61,6 +61,4 @@ if __name__ == '__main__':
     classifier = calculate_model(df)
 
     # Save the model
-    dump(classifier, os.path.join(SRC_DIR, 'ml_model.joblib'))
-
-
+    dump(classifier, os.path.join(SRC_DIR, "ml_model.joblib"))

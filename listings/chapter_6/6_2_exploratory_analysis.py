@@ -32,11 +32,11 @@ for symbol in symbols:
     _corr = np.corrcoef(price_return_series, alt_return_series)
 
     # This element of the correlation matrix is the number we want
-    _corr_by_symbol[symbol] = _corr[1,0]
+    _corr_by_symbol[symbol] = _corr[1, 0]
 
 # Describe results
 results = pd.Series(_corr_by_symbol)
-print(pd.DataFrame(results.describe()).T)
+print((pd.DataFrame(results.describe()).T))
 # Returns ...
 #  count      mean       std       min       25%       50%     75%       max
 #   97.0 -0.002539  0.032456 -0.065556 -0.024983 -0.003735  0.0174  0.099085

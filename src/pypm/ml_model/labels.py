@@ -4,10 +4,11 @@ from typing import Tuple
 
 from pypm import labels
 
+
 def calculate_labels(price_series, event_index) -> Tuple[pd.Series, pd.Series]:
     """
-    Calculate labels based on the triple barrier method. Return a series of 
-    event labels index by event start date, and return a series of event end 
+    Calculate labels based on the triple barrier method. Return a series of
+    event labels index by event start date, and return a series of event end
     dates indexed by event start date.
     """
 

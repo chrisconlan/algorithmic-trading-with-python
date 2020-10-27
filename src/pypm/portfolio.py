@@ -6,27 +6,35 @@ from collections import OrderedDict, defaultdict
 
 from pypm import metrics, signals, data_io
 
-Symbol = NewType('Symbol', str)
-Dollars = NewType('Dollars', float)
+Symbol = NewType("Symbol", str)
+Dollars = NewType("Dollars", float)
 
-DATE_FORMAT_STR = '%a %b %d, %Y'
+DATE_FORMAT_STR = "%a %b %d, %Y"
+
+
 def _pdate(date: pd.Timestamp):
     """Pretty-print a datetime with just the date"""
     return date.strftime(DATE_FORMAT_STR)
+
 
 class Position(object):
     """
     A simple object to hold and manipulate data related to long stock trades.
 
-    Allows a single buy and sell operation on an asset for a constant number of 
+    Allows a single buy and sell operation on an asset for a constant number of
     shares.
 
     The __init__ method is equivelant to a buy operation. The exit
     method is a sell operation.
     """
 
-    def __init__(self, symbol: Symbol, entry_date: pd.Timestamp, 
-        entry_price: Dollars, shares: int):
+    def __init__(
+        self,
+        symbol: Symbol,
+        entry_date: pd.Timestamp,
+        entry_price: Dollars,
+        shares: int,
+    ):
         """
         Equivalent to buying a certain number of shares of the asset
         """
@@ -34,10 +42,10 @@ class Position(object):
         # Recorded on initialization
         self.entry_date = entry_date
 
-        assert entry_price > 0, 'Cannot buy asset with zero or negative price.'
+        assert entry_price > 0, "Cannot buy asset with zero or negative price."
         self.entry_price = entry_price
 
-        assert shares > 0, 'Cannot buy zero or negative shares.'
+        assert shares > 0, "Cannot buy zero or negative shares."
         self.shares = shares
 
         self.symbol = symbol
@@ -62,8 +70,8 @@ class Position(object):
         """
         Equivalent to selling a stock holding
         """
-        assert self.entry_date != exit_date, 'Churned a position same-day.'
-        assert not self.exit_date, 'Position already closed.'
+        assert self.entry_date != exit_date, "Churned a position same-day."
+        assert not self.exit_date, "Position already closed."
         self.record_price_update(exit_date, exit_price)
         self.exit_date = exit_date
         self.exit_price = exit_price
@@ -82,7 +90,7 @@ class Position(object):
     @property
     def price_series(self) -> pd.Series:
         """
-        Returns cached readonly pd.Series 
+        Returns cached readonly pd.Series
         """
         if self._needs_update_pd_series or self._price_series is None:
             self._price_series = pd.Series(self._dict_series)
@@ -100,20 +108,20 @@ class Position(object):
     @property
     def is_closed(self) -> bool:
         return not self.is_active
-    
+
     @property
     def value_series(self) -> pd.Series:
         """
         Returns the value of the position over time. Ignores self.exit_date.
         Used in calculating the equity curve.
         """
-        assert self.is_closed, 'Position must be closed to access this property'
+        assert self.is_closed, "Position must be closed to access this property"
         return self.shares * self.price_series[:-1]
 
     @property
     def percent_return(self) -> float:
         return (self.exit_price / self.entry_price) - 1
-    
+
     @property
     def entry_value(self) -> Dollars:
         return self.shares * self.entry_price
@@ -129,7 +137,7 @@ class Position(object):
     @property
     def trade_length(self):
         return len(self._dict_series) - 1
-    
+
     def print_position_summary(self):
         _entry_date = _pdate(self.entry_date)
         _exit_date = _pdate(self.exit_date)
@@ -144,16 +152,16 @@ class Position(object):
         _return = round(100 * self.percent_return, 1)
         _diff = round(self.change_in_value, 2)
 
-        print(f'{self.symbol:<5}     Trade summary')
-        print(f'Date:     {_entry_date} -> {_exit_date} [{_days} days]')
-        print(f'Price:    ${_entry_price} -> ${_exit_price} [{_return}%]')
-        print(f'Value:    ${_entry_value} -> ${_exit_value} [${_diff}]')
+        print(f"{self.symbol:<5}     Trade summary")
+        print(f"Date:     {_entry_date} -> {_exit_date} [{_days} days]")
+        print(f"Price:    ${_entry_price} -> ${_exit_price} [{_return}%]")
+        print(f"Value:    ${_entry_value} -> ${_exit_value} [${_diff}]")
         print()
 
     def __hash__(self):
         """
-        A unique position will be defined by a unique combination of an 
-        entry_date and symbol, in accordance with our constraints regarding 
+        A unique position will be defined by a unique combination of an
+        entry_date and symbol, in accordance with our constraints regarding
         duplicate, variable, and compound positions
         """
         return hash((self.entry_date, self.symbol))
@@ -181,8 +189,8 @@ class PortfolioHistory(object):
 
     def add_to_history(self, position: Position):
         _log = self._logged_positions
-        assert not position in _log, 'Recorded the same position twice.'
-        assert position.is_closed, 'Position is not closed.'
+        assert position not in _log, "Recorded the same position twice."
+        assert position.is_closed, "Position is not closed."
         self._logged_positions.add(position)
         self.position_history.append(position)
         self.last_date = max(self.last_date, position.last_date)
@@ -208,7 +216,7 @@ class PortfolioHistory(object):
 
         # Add up value of assets
         for position in self.position_history:
-            for date, value in position.value_series.items():
+            for date, value in list(position.value_series.items()):
                 value_by_date[date] += value
 
         # Make sure all dates in cash_series are present
@@ -224,26 +232,26 @@ class PortfolioHistory(object):
     def _compute_equity_series(self):
         c_series = self.cash_series
         p_series = self.portfolio_value_series
-        assert all(c_series.index == p_series.index), \
-            'portfolio_series has dates not in cash_series'
-        self._equity_series = c_series + p_series     
+        assert all(c_series.index == p_series.index
+                  ), "portfolio_series has dates not in cash_series"
+        self._equity_series = c_series + p_series
 
     @property
     def equity_series(self):
         return self._equity_series
 
     def _compute_log_return_series(self):
-        self._log_return_series = \
-            metrics.calculate_log_return_series(self.equity_series)
+        self._log_return_series = metrics.calculate_log_return_series(
+            self.equity_series)
 
     @property
     def log_return_series(self):
         return self._log_return_series
 
     def _assert_finished(self):
-        assert self._simulation_finished, \
-            'Simuation must be finished by running self.finish() in order ' + \
-            'to access this method or property.'
+        assert self._simulation_finished, (
+            "Simuation must be finished by running self.finish() in order " +
+            "to access this method or property.")
 
     def finish(self):
         """
@@ -274,8 +282,8 @@ class PortfolioHistory(object):
     @property
     def spy_log_returns(self):
         if self._spy_log_returns.empty:
-            close = self.spy['close']
-            self._spy_log_returns =  metrics.calculate_log_return_series(close)
+            close = self.spy["close"]
+            self._spy_log_returns = metrics.calculate_log_return_series(close)
         return self._spy_log_returns
 
     @property
@@ -284,7 +292,7 @@ class PortfolioHistory(object):
 
     @property
     def spy_percent_return(self):
-        return metrics.calculate_percent_return(self.spy['close'])
+        return metrics.calculate_percent_return(self.spy["close"])
 
     @property
     def cagr(self):
@@ -300,8 +308,8 @@ class PortfolioHistory(object):
 
     @property
     def spy_cagr(self):
-        return metrics.calculate_cagr(self.spy['close'])
-    
+        return metrics.calculate_cagr(self.spy["close"])
+
     @property
     def excess_cagr(self):
         return self.cagr - self.spy_cagr
@@ -315,16 +323,16 @@ class PortfolioHistory(object):
 
     @property
     def dollar_max_drawdown(self):
-        return metrics.calculate_max_drawdown(self.equity_series, 'dollar')
+        return metrics.calculate_max_drawdown(self.equity_series, "dollar")
 
     @property
     def percent_max_drawdown(self):
-        return metrics.calculate_max_drawdown(self.equity_series, 'percent')
+        return metrics.calculate_max_drawdown(self.equity_series, "percent")
 
     @property
     def log_max_drawdown_ratio(self):
         return metrics.calculate_log_max_drawdown_ratio(self.equity_series)
-    
+
     @property
     def number_of_trades(self):
         return len(self.position_history)
@@ -337,31 +345,31 @@ class PortfolioHistory(object):
     def final_cash(self):
         self._assert_finished()
         return self.cash_series[-1]
-    
+
     @property
     def final_equity(self):
         self._assert_finished()
         return self.equity_series[-1]
-    
+
     _PERFORMANCE_METRICS_PROPS = [
-        'percent_return',
-        'spy_percent_return',
-        'cagr',
-        'volatility',
-        'sharpe_ratio',
-        'spy_cagr',
-        'excess_cagr',
-        'jensens_alpha',
-        'dollar_max_drawdown',
-        'percent_max_drawdown',
-        'log_max_drawdown_ratio',
-        'number_of_trades',
-        'average_active_trades',
-        'final_cash',
-        'final_equity',
+        "percent_return",
+        "spy_percent_return",
+        "cagr",
+        "volatility",
+        "sharpe_ratio",
+        "spy_cagr",
+        "excess_cagr",
+        "jensens_alpha",
+        "dollar_max_drawdown",
+        "percent_max_drawdown",
+        "log_max_drawdown_ratio",
+        "number_of_trades",
+        "average_active_trades",
+        "final_cash",
+        "final_equity",
     ]
 
-    PerformancePayload = NewType('PerformancePayload', Dict[str, float])
+    PerformancePayload = NewType("PerformancePayload", Dict[str, float])
 
     def get_performance_metric_data(self) -> PerformancePayload:
         props = self._PERFORMANCE_METRICS_PROPS
@@ -373,20 +381,20 @@ class PortfolioHistory(object):
 
     def print_summary(self):
         self._assert_finished()
-        s = f'Equity: ${self.final_equity:.2f}\n' \
-            f'Percent Return: {100*self.percent_return:.2f}%\n' \
-            f'S&P 500 Return: {100*self.spy_percent_return:.2f}%\n\n' \
-            f'Number of trades: {self.number_of_trades}\n' \
-            f'Average active trades: {self.average_active_trades:.2f}\n\n' \
-            f'CAGR: {100*self.cagr:.2f}%\n' \
-            f'S&P 500 CAGR: {100*self.spy_cagr:.2f}%\n' \
-            f'Excess CAGR: {100*self.excess_cagr:.2f}%\n\n' \
-            f'Annualized Volatility: {100*self.volatility:.2f}%\n' \
-            f'Sharpe Ratio: {self.sharpe_ratio:.2f}\n' \
-            f'Jensen\'s Alpha: {self.jensens_alpha:.6f}\n\n' \
-            f'Dollar Max Drawdown: ${self.dollar_max_drawdown:.2f}\n' \
-            f'Percent Max Drawdown: {100*self.percent_max_drawdown:.2f}%\n' \
-            f'Log Max Drawdown Ratio: {self.log_max_drawdown_ratio:.2f}\n'
+        s = (f"Equity: ${self.final_equity:.2f}\n"
+             f"Percent Return: {100*self.percent_return:.2f}%\n"
+             f"S&P 500 Return: {100*self.spy_percent_return:.2f}%\n\n"
+             f"Number of trades: {self.number_of_trades}\n"
+             f"Average active trades: {self.average_active_trades:.2f}\n\n"
+             f"CAGR: {100*self.cagr:.2f}%\n"
+             f"S&P 500 CAGR: {100*self.spy_cagr:.2f}%\n"
+             f"Excess CAGR: {100*self.excess_cagr:.2f}%\n\n"
+             f"Annualized Volatility: {100*self.volatility:.2f}%\n"
+             f"Sharpe Ratio: {self.sharpe_ratio:.2f}\n"
+             f"Jensen's Alpha: {self.jensens_alpha:.6f}\n\n"
+             f"Dollar Max Drawdown: ${self.dollar_max_drawdown:.2f}\n"
+             f"Percent Max Drawdown: {100*self.percent_max_drawdown:.2f}%\n"
+             f"Log Max Drawdown Ratio: {self.log_max_drawdown_ratio:.2f}\n")
 
         print(s)
 
@@ -399,15 +407,15 @@ class PortfolioHistory(object):
         figure, axes = plt.subplots(nrows=3, ncols=1)
         figure.tight_layout(pad=3.0)
         axes[0].plot(self.equity_series)
-        axes[0].set_title('Equity')
+        axes[0].set_title("Equity")
         axes[0].grid()
 
         axes[1].plot(self.cash_series)
-        axes[1].set_title('Cash')
+        axes[1].set_title("Cash")
         axes[1].grid()
 
         axes[2].plot(self.portfolio_value_series)
-        axes[2].set_title('Portfolio Value')
+        axes[2].set_title("Portfolio Value")
         axes[2].grid()
 
         if show:
@@ -424,7 +432,7 @@ class PortfolioHistory(object):
         equity_curve = self.equity_series
         ax = equity_curve.plot()
 
-        spy_closes = self.spy['close']
+        spy_closes = self.spy["close"]
         initial_cash = self.cash_series[0]
         initial_spy = spy_closes[0]
 
@@ -432,12 +440,10 @@ class PortfolioHistory(object):
         scaled_spy.plot()
 
         baseline = pd.Series(initial_cash, index=equity_curve.index)
-        ax = baseline.plot(color='black')
+        ax = baseline.plot(color="black")
         ax.grid()
 
-        ax.legend(['Equity curve', 'S&P 500 portflio'])
+        ax.legend(["Equity curve", "S&P 500 portflio"])
 
         if show:
             plt.show()
-
-

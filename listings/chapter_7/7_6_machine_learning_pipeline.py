@@ -15,7 +15,7 @@ from pypm.ml_model.weights import calculate_weights
 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # All the data we have to work with
     symbols, eod_data, alt_data = load_data()
@@ -42,18 +42,18 @@ if __name__ == '__main__':
 
         # Convert labels and events to a data frame
         labels_df = pd.DataFrame(event_labels)
-        labels_df.columns = ['y']
+        labels_df.columns = ["y"]
 
         # Converts weights to a data frame
         weights_df = pd.DataFrame(weights)
-        weights_df.columns = ['weights']
+        weights_df.columns = ["weights"]
 
         # Concatenate features to labels
         df = pd.concat([features_on_events, weights_df, labels_df], axis=1)
         df_by_symbol[symbol] = df
 
     # Create final ML dataframe
-    df = pd.concat(df_by_symbol.values(), axis=0)
+    df = pd.concat(list(df_by_symbol.values()), axis=0)
     df.sort_index(inplace=True)
     df.dropna(inplace=True)
     print(df)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     classifier = calculate_model(df)
 
     # Save the model
-    dump(classifier, os.path.join(SRC_DIR, 'ml_model.joblib'))
+    dump(classifier, os.path.join(SRC_DIR, "ml_model.joblib"))
 
 # Returns ...
 #             7_day_revenue_delta  7_day_return  7_day_vol  ...
@@ -77,14 +77,14 @@ if __name__ == '__main__':
 # 2019-10-01             0.009513     -0.015659   0.094087  ...
 # 2019-10-02             0.012819     -0.008300   0.062938  ...
 # 2019-10-02             0.003023      0.015749   0.043320  ...
-# 
+#
 # [1563 rows x 17 columns]
 # Fitting 20 models 10 at a time ...
-# 
+#
 # ...
 # ...
 # ...
-# 
+#
 # Feature importances
 # 30_day_return            0.099
 # 7_day_return             0.097
@@ -101,11 +101,11 @@ if __name__ == '__main__':
 # 7_day_revenue_delta      0.057
 # 90_day_revenue_delta     0.057
 # 30_day_revenue_delta     0.055
-# 
+#
 # Cross validation scores
 # ...
-# 
+#
 # Baseline accuracy 42.2%
 # OOS accuracy 52.4% +/- 5.3%
 # Improvement 4.9 to 15.6%
-# 
+#

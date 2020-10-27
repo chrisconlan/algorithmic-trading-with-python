@@ -1,20 +1,20 @@
 import pandas as pd
 from pypm import data_io, portfolio
 
-symbol = 'AWU'
+symbol = "AWU"
 df = data_io.load_eod_data(symbol)
 shares_to_buy = 50
 
 for i, row in enumerate(df.itertuples()):
-	date = row.Index
-	price = row.close
+    date = row.Index
+    price = row.close
 
-	if i == 123:
-		position = portfolio.Position(symbol, date, price, shares_to_buy)
-	elif 123 < i < 234:
-		position.record_price_update(date, price)
-	elif i == 234:
-		position.exit(date, price)
+    if i == 123:
+        position = portfolio.Position(symbol, date, price, shares_to_buy)
+    elif 123 < i < 234:
+        position.record_price_update(date, price)
+    elif i == 234:
+        position.exit(date, price)
 
 position.print_position_summary()
 

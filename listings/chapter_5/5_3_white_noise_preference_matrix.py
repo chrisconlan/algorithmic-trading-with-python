@@ -6,7 +6,9 @@ from pypm.optimization import GridSearchOptimizer
 
 from typing import List, Dict, Tuple, Callable
 
-Performance = simulation.PortfolioHistory.PerformancePayload # Dict[str, float]
+# Dict[str, float]
+Performance = simulation.PortfolioHistory.PerformancePayload
+
 
 def bind_simulator(**sim_kwargs) -> Callable:
     """
@@ -21,7 +23,7 @@ def bind_simulator(**sim_kwargs) -> Callable:
     bollinger_n = 20
 
     def _simulate(white_noise_test_id: int) -> Performance:
-        
+
         signal = prices.apply(_bollinger, args=(bollinger_n,), axis=0)
 
         # Build a pile of noise in the same shape as the price data
@@ -37,13 +39,14 @@ def bind_simulator(**sim_kwargs) -> Callable:
 
     return _simulate
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     simulate = bind_simulator(initial_cash=10000, max_active_positions=5)
 
     optimizer = GridSearchOptimizer(simulate)
-    optimizer.optimize(white_noise_test_id=range(1000))
+    optimizer.optimize(white_noise_test_id=list(range(1000)))
 
-    print(optimizer.get_best('excess_cagr'))
+    print((optimizer.get_best("excess_cagr")))
     optimizer.print_summary()
-    optimizer.plot('excess_cagr')
+    optimizer.plot("excess_cagr")

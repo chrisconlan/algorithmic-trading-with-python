@@ -1,5 +1,6 @@
 from sklearn.linear_model import LinearRegression
 
+
 def calculate_pure_profit_score(price_series: pd.Series) -> float:
     """
     Calculates the pure profit score

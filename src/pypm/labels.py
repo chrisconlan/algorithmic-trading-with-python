@@ -2,25 +2,27 @@ import numpy as np
 import pandas as pd
 from typing import Tuple
 
+
 def compute_triple_barrier_labels(
-    price_series: pd.Series, 
-    event_index: pd.Series, 
-    time_delta_days: int, 
-    upper_delta: float=None, 
-    lower_delta: float=None, 
-    vol_span: int=20, 
-    upper_z: float=None,
-    lower_z: float=None,
-    upper_label: int=1, 
-    lower_label: int=-1) -> Tuple[pd.Series, pd.Series]:
+    price_series: pd.Series,
+    event_index: pd.Series,
+    time_delta_days: int,
+    upper_delta: float = None,
+    lower_delta: float = None,
+    vol_span: int = 20,
+    upper_z: float = None,
+    lower_z: float = None,
+    upper_label: int = 1,
+    lower_label: int = -1,
+) -> Tuple[pd.Series, pd.Series]:
     """
-    Calculate event labels according to the triple-barrier method. 
+    Calculate event labels according to the triple-barrier method.
 
-    Return a series with both the original events and the labels. Labels 1, 0, 
-    and -1 correspond to upper barrier breach, vertical barrier breach, and 
-    lower barrier breach, respectively. 
+    Return a series with both the original events and the labels. Labels 1, 0,
+    and -1 correspond to upper barrier breach, vertical barrier breach, and
+    lower barrier breach, respectively.
 
-    Also return series where the index is the start date of the label and the 
+    Also return series where the index is the start date of the label and the
     values are the end dates of the label.
     """
 
@@ -50,7 +52,7 @@ def compute_triple_barrier_labels(
             _date = log_returns[log_returns > upper_delta].first_valid_index()
             if _date:
                 candidates.append((upper_label, _date))
-    
+
         if lower_delta:
             _date = log_returns[log_returns < lower_delta].first_valid_index()
             if _date:
@@ -83,8 +85,3 @@ def compute_triple_barrier_labels(
     event_spans = pd.Series(label_dates, index=event_index)
 
     return label_series, event_spans
-
-
-
-
-

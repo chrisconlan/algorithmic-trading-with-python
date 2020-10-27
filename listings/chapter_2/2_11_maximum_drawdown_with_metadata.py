@@ -1,8 +1,8 @@
-def calculate_max_drawdown_with_metadata(series: pd.Series, 
-    method: str='log') -> Dict[str, Any]:
+def calculate_max_drawdown_with_metadata(series: pd.Series,
+                                         method: str = "log") -> Dict[str, Any]:
     """
-    Calculates max_drawdown and stores metadata about when and where. Returns 
-    a dictionary of the form 
+    Calculates max_drawdown and stores metadata about when and where. Returns
+    a dictionary of the form
         {
             'max_drawdown': float,
             'peak_date': pd.Timestamp,
@@ -12,8 +12,9 @@ def calculate_max_drawdown_with_metadata(series: pd.Series,
         }
     """
 
-    assert method in DRAWDOWN_EVALUATORS, \
-        f'Method "{method}" must by one of {list(DRAWDOWN_EVALUATORS.keys())}'
+    assert (
+        method in DRAWDOWN_EVALUATORS
+    ), f'Method "{method}" must by one of {list(DRAWDOWN_EVALUATORS.keys())}'
 
     evaluator = DRAWDOWN_EVALUATORS[method]
 
@@ -21,7 +22,7 @@ def calculate_max_drawdown_with_metadata(series: pd.Series,
     local_peak_date = peak_date = trough_date = series.index[0]
     local_peak_price = peak_price = trough_price = series.iloc[0]
 
-    for date, price in series.iteritems():
+    for date, price in series.items():
 
         # Keep track of the rolling max
         if price > local_peak_price:
@@ -42,9 +43,9 @@ def calculate_max_drawdown_with_metadata(series: pd.Series,
             trough_price = price
 
     return {
-        'max_drawdown': max_drawdown,
-        'peak_date': peak_date,
-        'peak_price': peak_price,
-        'trough_date': trough_date,
-        'trough_price': trough_price
+        "max_drawdown": max_drawdown,
+        "peak_date": peak_date,
+        "peak_price": peak_price,
+        "trough_date": trough_date,
+        "trough_price": trough_price,
     }

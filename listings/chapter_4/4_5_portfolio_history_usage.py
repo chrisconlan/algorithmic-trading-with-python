@@ -2,7 +2,7 @@ import pandas as pd
 from pypm import data_io
 from pypm.portfolio import Position, PortfolioHistory
 
-symbol = 'AWU'
+symbol = "AWU"
 df = data_io.load_eod_data(symbol)
 
 portfolio_history = PortfolioHistory()
@@ -14,7 +14,7 @@ for i, row in enumerate(df.itertuples()):
 
     if i == 123:
         # Figure out how many shares to buy
-        shares_to_buy = initial_cash / price 
+        shares_to_buy = initial_cash / price
 
         # Record the position
         position = Position(symbol, date, price, shares_to_buy)
@@ -52,7 +52,7 @@ portfolio_history.print_summary()
 # Equity: $17530.18
 # Percent Return: 75.30%
 # S&P 500 Return: 184.00%
-# 
+#
 # Number of trades: 1
 # Average active trades: 1.00
 #

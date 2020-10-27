@@ -1,5 +1,6 @@
-from pypm import metrics, signals, data_io, simulation
+from .pypm import metrics, signals, data_io, simulation
 import pandas as pd
+
 
 def simulate_portfolio():
 
@@ -16,7 +17,7 @@ def simulate_portfolio():
 
     # Use a rolling sharpe ratio approximation as a preference matrix
     _sharpe = metrics.calculate_rolling_sharpe_ratio
-    preference = prices.apply(_sharpe, args=(sharpe_n, ), axis=0)
+    preference = prices.apply(_sharpe, args=(sharpe_n,), axis=0)
 
     # Run the simulator
     simulator = simulation.SimpleSimulator(
@@ -34,5 +35,6 @@ def simulate_portfolio():
     simulator.portfolio_history.plot()
     simulator.portfolio_history.plot_benchmark_comparison()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     simulate_portfolio()
